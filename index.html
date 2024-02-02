@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NP Ultra Viewer</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: white;
+        }
+
+        #container {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 95%;
+        }
+
+        #unityCanvas {
+            width: 80%;
+            max-width: 1000px; /* Adjust the width as needed */
+            margin-bottom: 20px;
+        }
+
+        #imageContainer {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #pngImage, #gifImage {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <canvas id="unityCanvas"></canvas>
+
+        <div id="imageContainer">
+            <img id="pngImage" src="" alt="PNG Image">
+            <img id="gifImage" src="" alt="GIF Image">
+        </div>
+    </div>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function updateSelection(idx) {
+            // Note that the data row is idx-1 but the images are idx (MATLAB people...)
+
+            if (!csvData) {
+                console.error('CSV data not loaded yet.');
+                return;
+            }
+
+            if (idx < 0 || idx >= csvData.length) {
+                console.error('Invalid row index:', idx);
+                return;
+            }
+
+            const selectedRow = csvData[idx-1];
+
+            // Update table
+            const table = document.getElementById('dataTable');
+            const tbody = table.querySelector('tbody');
+
+            // Clear existing rows in the tbody
+            tbody.innerHTML = '';
+
+            // Create a new row and cells for the selected data
+            const newRow = tbody.insertRow();
+            for (const key in selectedRow) {
+                const cell = newRow.insertCell();
+                cell.textContent = selectedRow[key];
+            }
+
+            // Change the image lement sources
+            document.getElementById('gifImage').src = `images/gif/neuron${idx}.gif`;
+            document.getElementById('pngImage').src = `images/png/neuron${idx}.png`;
+        }
+
+        let csvData = null;
+
+        // Function to load the CSV file and cache the data
+        async function loadCSVFile() {
+            try {
+                const response = await fetch('./metadata_stripped.csv');
+                const csvText = await response.text();
+                csvData = parseCSV(csvText);
+            } catch (error) {
+                console.error('Error loading CSV file:', error);
+            }
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',');
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const entry = {};
+
+                for (let j = 0; j < headers.length; j++) {
+                    entry[headers[j]] = values[j];
+                }
+
+                data.push(entry);
+            }
+
+            return data;
+        }
+
+        function updateTableHeaders() {
+            if (!csvData || csvData.length === 0) {
+                console.error('CSV data not loaded or empty.');
+                return;
+            }
+
+            const table = document.getElementById('dataTable');
+            const thead = table.querySelector('thead');
+
+            // Clear existing headers in the thead
+            thead.innerHTML = '';
+
+            // Create a new row for the headers
+            const headerRow = thead.insertRow();
+
+            // Add headers based on the first row of the CSV data
+            const headers = Object.keys(csvData[0]);
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+        }
+
+        loadCSVFile().then(() => {
+            updateTableHeaders();
+
+            // for testing
+            updateSelection(23);
+        });
+    </script>
+
+</body>
+</html>
