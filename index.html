@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NP Ultra Viewer</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Josefin+Sans:wght@700&display=swap">
+«   <title>NP Ultra Viewer</title>
     <style>
         body {
             display: flex;
@@ -21,8 +22,12 @@
             max-width: 95%;
         }
 
+        #probeGraphic {
+            width:10%;
+        }
+
         #unityCanvas {
-            width: 80%;
+            width: 70%;
             max-width: 1000px; /* Adjust the width as needed */
             margin-bottom: 20px;
         }
@@ -34,15 +39,44 @@
             align-items: center;
         }
 
-        #pngImage, #gifImage {
+        #pngImage, #gifImage, #probeImage {
             width: 100%;
             margin-bottom: 20px;
+        }
+
+        #dataTable {
+            max-width: 80%;
+            margin-bottom: 20px;
+        }
+
+        .buttonContainer {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin: 10px;
+        }
+
+        .button {
+            background-color: lightblue;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <div id="container">
+        <div id="probeGraphic">
+            <img id="probeImage" src="images/ultra_probe.svg" alt="Ultra Probe">
+        </div>
+
         <canvas id="unityCanvas"></canvas>
 
         <div id="imageContainer">
@@ -61,6 +95,11 @@
             </tr>
         </tbody>
     </table>
+    
+    <div class="buttonContainer">
+        <a href="https://www.biorxiv.org/content/10.1101/2023.08.23.554527"><button class="button">Paper</button></a>
+        <button class="button">Share</button>
+    </div>
 
     <script>
         function updateSelection(idx) {
