@@ -26,7 +26,7 @@
             width:10%;
         }
 
-        #unityCanvas {
+        #unity-canvas {
             width: 70%;
             max-width: 1000px; /* Adjust the width as needed */
             margin-bottom: 20px;
@@ -87,7 +87,7 @@
             <img id="probeImage" src="images/ultra_probe.svg" alt="Ultra Probe">
         </div>
 
-        <canvas id="unityCanvas"></canvas>
+        <canvas id="unity-canvas"></canvas>
 
         <div id="imageContainer">
             <img id="pngImage" src="" alt="PNG Image">
@@ -210,5 +210,73 @@
         });
     </script>
 
+<script>
+    const hideFullScreenButton = "";
+    const buildUrl = "build/Build";
+    const loaderUrl = buildUrl + "/build.loader.js";
+    const config = {
+      dataUrl: buildUrl + "/build.data.unityweb",
+      frameworkUrl: buildUrl + "/build.framework.js.unityweb",
+      codeUrl: buildUrl + "/build.wasm.unityweb",
+      streamingAssetsUrl: "build/StreamingAssets",
+      companyName: "VirtualBrainLab",
+      productName: "NPUltra",
+      productVersion: "0.1.0",
+    };
+
+    // const container = document.querySelector("#unity-container");
+    const canvas = document.querySelector("#unity-canvas");
+    // const loadingCover = document.querySelector("#loading-cover");
+    // const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
+    // const progressBarFull = document.querySelector("#unity-progress-bar-full");
+    // const fullscreenButton = document.querySelector("#unity-fullscreen-button");
+    // const spinner = document.querySelector('.spinner');
+
+    // const canFullscreen = (function() {
+    //   for (const key of [
+    //       'exitFullscreen',
+    //       'webkitExitFullscreen',
+    //       'webkitCancelFullScreen',
+    //       'mozCancelFullScreen',
+    //       'msExitFullscreen',
+    //     ]) {
+    //     if (key in document) {
+    //       return true;
+    //     }
+    //   }
+    //   return false;
+    // }());
+
+    // if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    //   container.className = "unity-mobile";
+    //   config.devicePixelRatio = 1;
+    // }
+    // loadingCover.style.display = "";
+
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        // spinner.style.display = "none";
+        // progressBarEmpty.style.display = "";
+        // progressBarFull.style.width = `${100 * progress}%`;
+      }).then((unityInstance) => {
+        // loadingCover.style.display = "none";
+        // if (canFullscreen) {
+        //   if (!hideFullScreenButton) {
+        //     // fullscreenButton.style.display = "";
+        //   }
+        //   fullscreenButton.onclick = () => {
+        //     unityInstance.SetFullscreen(1);
+        //   };
+        // }
+      }).then((unityInstance) => {
+        myGameInstance = unityInstance
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+    document.body.appendChild(script);
+  </script>
 </body>
 </html>
