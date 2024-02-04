@@ -799,6 +799,17 @@ Transform:
   - {fileID: 200499326}
   m_Father: {fileID: 1859087903}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &213271435 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1366211727439126397, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+  m_PrefabInstance: {fileID: 431647798}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5c98e43f8f735543a2aa9aa6c5fdd2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &247192447
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1654,12 +1665,28 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 3393775226113162769, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.35355338
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162769, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.1464466
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162769, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.8535535
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162769, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.35355338
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162769, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 90
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 3393775226113162769, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 135
       objectReference: {fileID: 0}
     - target: {fileID: 3393775226113162775, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
       propertyPath: maxFoV
@@ -4695,7 +4722,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae843c23df62184aa1d492f7ced8c7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _meshManager: {fileID: 213271435}
   _mainCameraBehav: {fileID: 1793010831}
+  _dataAsset: {fileID: 4900000, guid: f30ab98594ba6dc49ac314ed7d59b36e, type: 3}
 --- !u!1 &1176480804 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1215881425424863814, guid: 797f30df999d646458e9984856b9b1f7, type: 3}
