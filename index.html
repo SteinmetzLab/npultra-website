@@ -78,9 +78,18 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        #searchInput {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            outline: none;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
+    <input type="text" id="searchInput" placeholder="Search..." onkeydown="searchOnEnter(event)">
 
     <div id="container">
         <div id="probeGraphic">
