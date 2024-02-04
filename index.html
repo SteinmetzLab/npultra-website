@@ -80,6 +80,7 @@
         }
 
         #searchInput {
+            min-width: 50%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 20px;
@@ -89,7 +90,7 @@
     </style>
 </head>
 <body>
-    <input type="text" id="searchInput" placeholder="Search..." onkeydown="searchOnEnter(event)">
+    <input type="text" id="searchInput" placeholder="Search by acronym..." onkeydown="searchOnEnter(event)">
 
     <div id="container">
         <div id="probeGraphic">
@@ -121,116 +122,116 @@
     </div>
 
     <script>
-        function updateSelection(idx) {
-            // Note that the data row is idx-1 but the images are idx (MATLAB people...)
+    var myGameInstance;
+    
+    function updateSelection(idx) {
+        // Note that the data row is idx-1 but the images are idx (MATLAB people...)
 
-            if (!csvData) {
-                console.error('CSV data not loaded yet.');
-                return;
-            }
-
-            if (idx < 0 || idx >= csvData.length) {
-                console.error('Invalid row index:', idx);
-                return;
-            }
-
-            const selectedRow = csvData[idx-1];
-
-            // Update table
-            const table = document.getElementById('dataTable');
-            const tbody = table.querySelector('tbody');
-
-            // Clear existing rows in the tbody
-            tbody.innerHTML = '';
-
-            // Create a new row and cells for the selected data
-            const newRow = tbody.insertRow();
-            for (const key in selectedRow) {
-                const cell = newRow.insertCell();
-                cell.textContent = selectedRow[key];
-            }
-
-            // Change the image lement sources
-            document.getElementById('gifImage').src = `images/gif/neuron${idx}.gif`;
-            document.getElementById('pngImage').src = `images/png/neuron${idx}.png`;
+        if (!csvData) {
+            console.error('CSV data not loaded yet.');
+            return;
         }
 
-        let csvData = null;
-
-        // Function to load the CSV file and cache the data
-        async function loadCSVFile() {
-            try {
-                const response = await fetch('./metadata_stripped.csv');
-                const csvText = await response.text();
-                csvData = parseCSV(csvText);
-            } catch (error) {
-                console.error('Error loading CSV file:', error);
-            }
+        if (idx < 0 || idx >= csvData.length) {
+            console.error('Invalid row index:', idx);
+            return;
         }
 
-        function parseCSV(csvText) {
-            const lines = csvText.trim().split('\n');
-            const headers = lines[0].split(',');
-            const data = [];
+        const selectedRow = csvData[idx-1];
 
-            for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(',');
-                const entry = {};
+        // Update table
+        const table = document.getElementById('dataTable');
+        const tbody = table.querySelector('tbody');
 
-                for (let j = 0; j < headers.length; j++) {
-                    entry[headers[j]] = values[j];
-                }
+        // Clear existing rows in the tbody
+        tbody.innerHTML = '';
 
-                data.push(entry);
-            }
-
-            return data;
+        // Create a new row and cells for the selected data
+        const newRow = tbody.insertRow();
+        for (const key in selectedRow) {
+            const cell = newRow.insertCell();
+            cell.textContent = selectedRow[key];
         }
 
-        function updateTableHeaders() {
-            if (!csvData || csvData.length === 0) {
-                console.error('CSV data not loaded or empty.');
-                return;
+        // Change the image lement sources
+        document.getElementById('gifImage').src = `images/gif/neuron${idx}.gif`;
+        document.getElementById('pngImage').src = `images/png/neuron${idx}.png`;
+    }
+
+    function searchOnEnter(event) {
+        if (event.key == 'Enter') {
+            console.log(`Searched for ${event.target.value}`);
+            myGameInstance.SendMessage('main', 'Search', event.target.value);
+        }
+    }
+
+    let csvData = null;
+
+    // Function to load the CSV file and cache the data
+    async function loadCSVFile() {
+        try {
+            const response = await fetch('./metadata_stripped.csv');
+            const csvText = await response.text();
+            csvData = parseCSV(csvText);
+        } catch (error) {
+            console.error('Error loading CSV file:', error);
+        }
+    }
+
+    function parseCSV(csvText) {
+        const lines = csvText.trim().split('\n');
+        const headers = lines[0].split(',');
+        const data = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',');
+            const entry = {};
+
+            for (let j = 0; j < headers.length; j++) {
+                entry[headers[j]] = values[j];
             }
 
-            const table = document.getElementById('dataTable');
-            const thead = table.querySelector('thead');
-
-            // Clear existing headers in the thead
-            thead.innerHTML = '';
-
-            // Create a new row for the headers
-            const headerRow = thead.insertRow();
-
-            // Add headers based on the first row of the CSV data
-            const headers = Object.keys(csvData[0]);
-            headers.forEach(header => {
-                const th = document.createElement('th');
-                th.textContent = header;
-                headerRow.appendChild(th);
-            });
+            data.push(entry);
         }
 
-        loadCSVFile().then(() => {
-            updateTableHeaders();
+        return data;
+    }
 
-            // for testing
-            updateSelection(23);
+    function updateTableHeaders() {
+        if (!csvData || csvData.length === 0) {
+            console.error('CSV data not loaded or empty.');
+            return;
+        }
+
+        const table = document.getElementById('dataTable');
+        const thead = table.querySelector('thead');
+
+        // Clear existing headers in the thead
+        thead.innerHTML = '';
+
+        // Create a new row for the headers
+        const headerRow = thead.insertRow();
+
+        // Add headers based on the first row of the CSV data
+        const headers = Object.keys(csvData[0]);
+        headers.forEach(header => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            headerRow.appendChild(th);
         });
-    </script>
+    }
 
-<script>
     const hideFullScreenButton = "";
     const buildUrl = "build/Build";
     const loaderUrl = buildUrl + "/build.loader.js";
     const config = {
-      dataUrl: buildUrl + "/build.data.unityweb",
-      frameworkUrl: buildUrl + "/build.framework.js.unityweb",
-      codeUrl: buildUrl + "/build.wasm.unityweb",
-      streamingAssetsUrl: "build/StreamingAssets",
-      companyName: "VirtualBrainLab",
-      productName: "NPUltra",
-      productVersion: "0.1.0",
+        dataUrl: buildUrl + "/build.data.unityweb",
+        frameworkUrl: buildUrl + "/build.framework.js.unityweb",
+        codeUrl: buildUrl + "/build.wasm.unityweb",
+        streamingAssetsUrl: "build/StreamingAssets",
+        companyName: "VirtualBrainLab",
+        productName: "NPUltra",
+        productVersion: "0.1.0",
     };
 
     // const container = document.querySelector("#unity-container");
@@ -265,26 +266,24 @@
     const script = document.createElement("script");
     script.src = loaderUrl;
     script.onload = () => {
-      createUnityInstance(canvas, config, (progress) => {
+            createUnityInstance(canvas, config, (progress) => {
         // spinner.style.display = "none";
         // progressBarEmpty.style.display = "";
         // progressBarFull.style.width = `${100 * progress}%`;
-      }).then((unityInstance) => {
-        // loadingCover.style.display = "none";
-        // if (canFullscreen) {
-        //   if (!hideFullScreenButton) {
-        //     // fullscreenButton.style.display = "";
-        //   }
-        //   fullscreenButton.onclick = () => {
-        //     unityInstance.SetFullscreen(1);
-        //   };
-        // }
-      }).then((unityInstance) => {
-        myGameInstance = unityInstance
-      }).catch((message) => {
-        alert(message);
-      });
+        }).then((unityInstance) => {
+            myGameInstance = unityInstance;
+        }).catch((message) => {
+            alert(message);
+        });
     };
+
+    loadCSVFile().then(() => {
+        updateTableHeaders();
+
+        // for testing
+        updateSelection(23);
+    });
+
     document.body.appendChild(script);
   </script>
 </body>

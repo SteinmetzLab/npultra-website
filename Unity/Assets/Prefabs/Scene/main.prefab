@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 161993171994875572}
   - component: {fileID: 161993171994875466}
-  - component: {fileID: 161993171994875574}
   m_Layer: 0
   m_Name: main
   m_TagString: Untagged
@@ -45,32 +44,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13968967245d3674eb77f631223a57f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &161993171994875574
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 161993171994875575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01102d1e79ed0f646a707fd0c57cedcf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cameraController: {fileID: 0}
-  _mainCameraBehavior: {fileID: 0}
-  _uiCanvas: {fileID: 0}
-  _colormapPanel: {fileID: 0}
-  settingsPanel: {fileID: 0}
-  brainControlsT: {fileID: 0}
-  consolePanel: {fileID: 0}
-  consoleText: {fileID: 0}
-  idPanel: {fileID: 0}
-  infoPanelText: {fileID: 0}
-  loadDefaults: 0
-  axesGO: {fileID: 0}
-  gridGO: {fileID: 0}
-  percentageExploded: 0
-  cosmosParentObjects:
-  - {fileID: 0}
-  - {fileID: 0}

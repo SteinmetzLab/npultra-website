@@ -1,4 +1,5 @@
 using BrainAtlas;
+using System.Collections.Generic;
 using UnityEngine;
 using Urchin.Behaviors;
 using Urchin.Managers;
@@ -11,8 +12,13 @@ public class NPUltraRuntime : MonoBehaviour
     [SerializeField] CameraBehavior _mainCameraBehav;
     [SerializeField] TextAsset _dataAsset;
 
+    private string[] _namesList;
+    private string[] _areaList;
+    private bool _loaded;
+
     private void Start()
     {
+
 #if !UNITY_EDITOR && UNITY_WEBGL
         WebGLInput.captureAllKeyboardInput = false;
 #endif
@@ -44,48 +50,68 @@ public class NPUltraRuntime : MonoBehaviour
         }
     }
 
-    void LoadData()
+    public void Search(string searchStr)
+    {
+        if (!_loaded) return;
+
+        float[] scales = new float[_namesList.Length];
+
+        for (int i = 0; i < _namesList.Length; i++)
+        {
+            if (_areaList[i].Contains(searchStr))
+                scales[i] = 0.05f;
+            else
+                scales[i] = 0.01f; 
+        }
+
+        _meshManager.SetScale(_namesList, scales);
+    }
+
+    private void LoadData()
     {
         if (_dataAsset != null)
         {
             string[] rows = _dataAsset.text.Split('\n');
 
-            Vector3[] coords = new Vector3[rows.Length];
-            Color[] colors = new Color[rows.Length];
-            string[] names = new string[rows.Length];
+            Vector3[] coords = new Vector3[rows.Length-2];
+            Color[] colors = new Color[rows.Length - 2];
+            _areaList = new string[rows.Length - 2];
+            _namesList = new string[rows.Length - 2];
+            float[] scales = new float[rows.Length - 2];
 
-            for (int i = 0; i < rows.Length; i++)
+            // skip the first row (header) and last row (blank)
+            for (int i = 1; i < (rows.Length - 1); i++)
             {
                 string[] columns = rows[i].Trim().Split(',');
 
-                float dv = int.Parse(columns[0], System.Globalization.NumberStyles.Any);
-                float ml = int.Parse(columns[1], System.Globalization.NumberStyles.Any);
-                float ap = int.Parse(columns[2], System.Globalization.NumberStyles.Any);
+                float ap = int.Parse(columns[0], System.Globalization.NumberStyles.Any);
+                float dv = int.Parse(columns[1], System.Globalization.NumberStyles.Any);
+                float ml = int.Parse(columns[2], System.Globalization.NumberStyles.Any);
 
                 // ap/ml/dv are in index coordinates, convert to um here
-                coords[i] = new Vector3(ap * BrainAtlasManager.ActiveReferenceAtlas.Dimensions.x / 1000f,
-                    ml * BrainAtlasManager.ActiveReferenceAtlas.Dimensions.y / 1000f,
-                    dv * BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z / 1000f);
-                colors[i] = HexToColor(columns[3]);
-                names[i] = i.ToString();
+                coords[i-1] = new Vector3(ap / 1000f,
+                    ml / 1000f,
+                    dv / 1000f);
+                _areaList[i - 1] = columns[3];
+                colors[i - 1] = HexToColor(columns[4]);
+                _namesList[i - 1] = i.ToString();
+                scales[i - 1] = 0.05f;
             }
 
-            _meshManager.CreateMesh(names);
-            _meshManager.SetPositions(names, coords);
-            _meshManager.SetColor(names, colors);
+            _meshManager.CreateMesh(_namesList);
+            _meshManager.SetPositions(_namesList, coords);
+            _meshManager.SetColor(_namesList, colors);
+            _meshManager.SetScale(_namesList, scales);
         }
         else
         {
             Debug.LogError("CSV file not assigned!");
         }
+
+        _loaded = true;
     }
 
-    bool IsHexColor(string value)
-    {
-        return value.Length == 6 && System.Text.RegularExpressions.Regex.IsMatch(value, "^[0-9A-Fa-f]*$");
-    }
-
-    Color HexToColor(string hex)
+    private Color HexToColor(string hex)
     {
         float r = int.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber) / 255f;
         float g = int.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber) / 255f;
