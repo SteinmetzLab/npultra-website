@@ -1,7 +1,4 @@
-images/gif/*
-images/png/*
 .DS_Store
-build/*
 
 # This .gitignore file should be placed at the root of your Unity project directory
 #
@@ -81,3 +78,11 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+build/index.html
+build/logo.png
+build/StreamingAssets/aa/AddressablesLink/link.xml
+build/StreamingAssets/aa/catalog.json
+build/StreamingAssets/aa/settings.json
+build/TemplateData/favicon.ico
+build/TemplateData/fullscreen-button.png
+build/TemplateData/style.css
