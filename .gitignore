@@ -80,9 +80,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 build/index.html
 build/logo.png
-build/StreamingAssets/aa/AddressablesLink/link.xml
-build/StreamingAssets/aa/catalog.json
-build/StreamingAssets/aa/settings.json
 build/TemplateData/favicon.ico
 build/TemplateData/fullscreen-button.png
 build/TemplateData/style.css
