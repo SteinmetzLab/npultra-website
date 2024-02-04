@@ -1247,7 +1247,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 161993171994875575, guid: 8d78849a732a3e54c8a6dfcda3795ec0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1170116143}
   m_SourcePrefab: {fileID: 100100000, guid: 8d78849a732a3e54c8a6dfcda3795ec0, type: 3}
 --- !u!1 &387974413
 GameObject:
@@ -4072,6 +4075,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: BrainAtlas
       objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1170116143}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: DelayedStart
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: NPUltraRuntime, urchin.unity
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 3131845913727300861, guid: ee09154d7a7870a419882ff36080d765, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -4652,6 +4683,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01102d1e79ed0f646a707fd0c57cedcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1170116143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1170116141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ae843c23df62184aa1d492f7ced8c7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _mainCameraBehav: {fileID: 1793010831}
 --- !u!1 &1176480804 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1215881425424863814, guid: 797f30df999d646458e9984856b9b1f7, type: 3}
