@@ -3,9 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using Urchin.Behaviors;
 using Urchin.Managers;
+#if UNITY_WEBGL && !UNITY_EDITOR
+using System.Runtime.InteropServices;
+#endif
 
 public class NPUltraRuntime : MonoBehaviour
 {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern void FinishedLoading();
+#endif
 
     [SerializeField] PrimitiveMeshManager _meshManager;
 
@@ -15,6 +22,9 @@ public class NPUltraRuntime : MonoBehaviour
     private string[] _namesList;
     private string[] _areaList;
     private bool _loaded;
+    private string _selected;
+
+    public float RandScale = 1f;
 
     private void Start()
     {
@@ -30,7 +40,7 @@ public class NPUltraRuntime : MonoBehaviour
     public async void DelayedStart()
     {
         _mainCameraBehav.SetCameraMode(false);
-        _mainCameraBehav.SetCameraZoom(-11.5f);
+        _mainCameraBehav.SetCameraZoom(-15f);
 
         var taskVar = BrainAtlasManager.LoadAtlas("allen_mouse_25um");
 
@@ -48,6 +58,10 @@ public class NPUltraRuntime : MonoBehaviour
             node.ResetColor();
             node.SetShaderProperty("_Alpha", 0.15f, OntologyNode.OntologyNodeSide.Full);
         }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        FinishedLoading();
+#endif
     }
 
     public void Search(string searchStr)
@@ -65,6 +79,21 @@ public class NPUltraRuntime : MonoBehaviour
         }
 
         _meshManager.SetScale(_namesList, scales);
+    }
+
+    public void Select(string selectedName)
+    {
+        // un-select the previous selection
+        if (_selected != null)
+        {
+            MeshBehavior unMesh = _meshManager.GetMesh(_selected);
+            unMesh.Select(false);
+        }
+
+        _selected = selectedName;
+
+        MeshBehavior meshBehavior = _meshManager.GetMesh(_selected);
+        meshBehavior.Select(true);
     }
 
     private void LoadData()
@@ -89,19 +118,22 @@ public class NPUltraRuntime : MonoBehaviour
                 float ml = int.Parse(columns[2], System.Globalization.NumberStyles.Any);
 
                 // ap/ml/dv are in index coordinates, convert to um here
-                coords[i-1] = new Vector3(ap / 1000f,
-                    ml / 1000f,
-                    dv / 1000f);
+                coords[i-1] = new Vector3(ap / 1000f + RandN(),
+                    ml / 1000f + RandN(),
+                    dv / 1000f + RandN());
                 _areaList[i - 1] = columns[3];
                 colors[i - 1] = HexToColor(columns[4]);
                 _namesList[i - 1] = i.ToString();
-                scales[i - 1] = 0.05f;
+                scales[i - 1] = 0.075f;
             }
 
             _meshManager.CreateMesh(_namesList);
             _meshManager.SetPositions(_namesList, coords);
             _meshManager.SetColor(_namesList, colors);
             _meshManager.SetScale(_namesList, scales);
+
+            foreach (string name in _namesList)
+                _meshManager.GetMesh(name).Save();
         }
         else
         {
@@ -109,6 +141,19 @@ public class NPUltraRuntime : MonoBehaviour
         }
 
         _loaded = true;
+    }
+    
+    private float BoxMullerTransform()
+    {
+        float u1 = 1f - Random.value; // Ensure u1 is in the range (0, 1] to avoid log(0)
+        float u2 = 1f - Random.value;
+        float z = Mathf.Sqrt(-2f * Mathf.Log(u1)) * Mathf.Sin(2f * Mathf.PI * u2);
+        return z;
+    }
+
+    float RandN()
+    {
+        return RandScale * BoxMullerTransform(); // Scale the value by standard deviation (10)
     }
 
     private Color HexToColor(string hex)

@@ -682,7 +682,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _meshManager: {fileID: 213271435}
   _mainCameraBehav: {fileID: 1793010831}
-  _dataAsset: {fileID: 4900000, guid: 345dfa950e1fa204d9bc13d07089aae2, type: 3}
+  _dataAsset: {fileID: 4900000, guid: 294b66c1e8e17e040afe13c21f7247cc, type: 3}
+  RandScale: 0.1
 --- !u!114 &1793010831 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3393775226113162772, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}

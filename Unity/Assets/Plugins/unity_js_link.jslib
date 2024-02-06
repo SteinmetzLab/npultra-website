@@ -9,4 +9,8 @@ mergeInto(LibraryManager.library, {
     window.alert(UTF8ToString(pid));
   },
 
+  FinishedLoading: function() {
+    update();
+  }
+
 });

@@ -122,7 +122,7 @@
             margin: 10px;
         }
         .button {
-            background-color: lightblue;
+            background-color: #add8e6;
             color: white;
             padding: 10px 20px;
             margin: 5px;
@@ -130,9 +130,49 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        .overlay {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8); /* Transparent white */
+            z-index: 9999;
+            }
+
+        .overlay-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+            @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>    
+    <div id="loadingOverlay" class="overlay">
+        <div class="overlay-content">
+          <div class="loader"></div>
+          <p>Loading...</p>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Left column -->
         <div class="left-col">
@@ -179,13 +219,13 @@
     
     <div class="buttonContainer">
         <a href="https://www.biorxiv.org/content/10.1101/2023.08.23.554527"><button class="button">Paper</button></a>
-        <button class="button">Share</button>
+        <button class="button" onclick="updateState();">Share</button>
     </div>
 
     <script>
     var state = {
         selected: -1,
-        visible_areas: [],
+        search: '',
     };
     var N;
     var myGameInstance;
@@ -196,80 +236,177 @@
         'DG', 'oc', 'VPM', 'VPL', 'PO', 'CP', 'ACB', 'MB'
     ];
 
+    const buttonColors = ['#1f9d5a','#248a5e', '#08858c', '#6acbba', '#8ada87', '#7ed04b', '#4fc244',
+        '#7ed04b', '#7ed04b', '#ff8084', '#ff8084', '#ff909f', '#98d6f9', '#80cdf8', '#ff64ff', '#ff64ff'
+    ]
+
+    let buttons = []
+
     function setup() {
         // Get reference to the top container
-        const topContainer = document.getElementById('areas');
+        let topContainer = document.getElementById('areas');
 
         // Create and append buttons
-        buttonLabels.forEach(label => {
-            const button = document.createElement('button');
+        for (var i = 0; i < buttonLabels.length; i++) {
+            let label = buttonLabels[i];
+            let color = buttonColors[i];
+            
+            let button = document.createElement('button');
+            buttons.push(button);
+
             button.textContent = label;
             button.className = 'button';
-            button.onclick = function() {
-                search(label);
-            };
+            button.style.backgroundColor = color;
+            if (label == 'Clear') {
+                button.onclick = function() {
+                    search('');
+                };
+            }
+            else {
+                button.onclick = function() {
+                    search(label);
+                };
+            }
             topContainer.appendChild(button);
-        });
-        
+        }
 
         // Add event listener for keydown event
         document.addEventListener('keydown', function(event) {
             // Check if left arrow key was pressed
             if (event.keyCode === 37) {
                 // Decrement the selected value
-                state.selected--;
-                console.log("Left arrow key pressed. Selected value decremented to: " + state.selected);
+                state.selected++;
+                checkSelectedBounds();
+                update();
             }
             // Check if right arrow key was pressed
             else if (event.keyCode === 39) {
                 // Increment the selected value
-                state.selected++;
-                console.log("Right arrow key pressed. Selected value incremented to: " + state.selected);
+                state.selected--;
+                checkSelectedBounds();
+                update();
             }
         });
+        
+        var urlParams = new URLSearchParams(window.location.search);
+        var stateBase64 = urlParams.get('state');
+
+        if (stateBase64) {
+            console.log('Found state in URL');
+            readState(stateBase64);
+        }
     }
-    
-    function updateSelection(idx) {
-        // Note that the data row is idx-1 but the images are idx (MATLAB people...
-        state.selected = idx;
 
-        if (!csvData) {
-            console.error('CSV data not loaded yet.');
-            return;
+    ////////////////////////////////
+    // STATE //////////
+    ////////////////////////////////
+
+    function updateState() {
+        var stateJson = JSON.stringify(state);
+        var stateBase64 = btoa(stateJson); // Encode JSON to base64
+        var url = window.location.href.split('?')[0] + '?state=' + encodeURIComponent(stateBase64);
+        window.history.replaceState({}, '', url); // Update URL with encoded state
+        navigator.clipboard.writeText(url);
+    }
+
+    function readState(stateBase64) {
+        var decodedStateJson = atob(stateBase64); // Decode base64 to JSON
+        state = JSON.parse(decodedStateJson);
+        console.log("State read from URL:", state);
+    }
+
+    ////////////////////////////////
+    // SELECTION / SEARCH //////////
+    ////////////////////////////////
+
+    function checkSelectedBounds() {
+        if (state.selected <= 0) {
+            state.selected += N;
         }
-
-        if (idx < 0 || idx >= csvData.length) {
-            console.error('Invalid row index:', idx);
-            return;
+        if (state.selected > N) {
+            state.selected -= N;
         }
-
-        const selectedRow = csvData[idx-1];
-
-        // Update table
-        const table = document.getElementById('dataTable');
-        const tbody = table.querySelector('tbody');
-
-        // Clear existing rows in the tbody
-        tbody.innerHTML = '';
-
-        // Create a new row and cells for the selected data
-        const newRow = tbody.insertRow();
-        for (const key in selectedRow) {
-            const cell = newRow.insertCell();
-            cell.textContent = selectedRow[key];
-        }
-
-        // Change the image lement sources
-        document.getElementById('gifImage').src = `images/gif/neuron${idx}.gif`;
-        document.getElementById('pngImage').src = `images/png/neuron${idx}.png`;
     }
 
     function searchOnEnter(event) {
         if (event.key == 'Enter') {
-            console.log(`Searched for ${event.target.value}`);
-            myGameInstance.SendMessage('main', 'Search', event.target.value);
+            search(area);
         }
     }
+    
+    function search(area) {
+        if (state.search == area) {
+            state.search = '';
+        }
+        else {
+            state.search = area;
+        }
+
+        console.log(`Search set to ${state.search}`);
+
+        update();
+    }
+
+    ////////////////////////////////
+    // UPDATE //////////
+    ////////////////////////////////
+
+    
+    // CALLED FROM UNITY
+    function updateSelection(idx) {
+        // Note that the data row is idx-1 but the images are idx (MATLAB people...
+        state.selected = idx;
+
+        // Tell Unity that we selected something new, and update the table
+        update();
+    }
+
+    let prevSearch = '';
+    let prevSelected = -1;
+
+    function update() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+
+        if (state.search != prevSearch) {
+            myGameInstance.SendMessage('main', 'Search', state.search);
+            prevSearch = state.search;
+
+            if (state.search == '') {
+                for (var i = 0; i < buttonLabels.length; i++) {
+                    let label = buttonLabels[i];
+                    let color = buttonColors[i];
+                    let button = buttons[i];
+                    
+                    button.style.backgroundColor = color;
+                }
+            }
+            else {
+                for (var i = 0; i < buttonLabels.length; i++) {
+                    let label = buttonLabels[i];
+                    let color = buttonColors[i];
+                    let button = buttons[i];
+
+                    if (label == state.search) {
+                        button.style.backgroundColor = color;
+                    }
+                    else {
+                        button.style.backgroundColor = '#808080';
+                    }
+                }
+            }
+        }
+
+        if (state.selected != prevSelected) {
+            myGameInstance.SendMessage('main', 'Select',  String(state.selected));
+            updateTable();
+            prevSelected = state.selected;
+        }
+    }
+    
+
+    ////////////////////////////////
+    // METADATA ////////////////////
+    ////////////////////////////////
 
     let csvData = null;
 
@@ -331,6 +468,45 @@
         });
     }
 
+    function updateTable() {
+
+        if (!csvData) {
+            console.error('CSV data not loaded yet.');
+            return;
+        }
+
+        let idx = state.selected;
+
+        if (idx < 0 || idx >= csvData.length) {
+            console.error('Invalid row index:', idx);
+            return;
+        }
+
+        const selectedRow = csvData[idx-1];
+
+        // Update table
+        const table = document.getElementById('dataTable');
+        const tbody = table.querySelector('tbody');
+
+        // Clear existing rows in the tbody
+        tbody.innerHTML = '';
+
+        // Create a new row and cells for the selected data
+        const newRow = tbody.insertRow();
+        for (const key in selectedRow) {
+            const cell = newRow.insertCell();
+            cell.textContent = selectedRow[key];
+        }
+
+        // Change the image lement sources
+        document.getElementById('gifImage').src = `images/gif/neuron${idx}.gif`;
+        document.getElementById('pngImage').src = `images/png/neuron${idx}.png`;
+    }
+
+    ////////////////////////////////
+    // UNITY ///////////////////////
+    ////////////////////////////////
+
     const hideFullScreenButton = "";
     const buildUrl = "build/Build";
     const loaderUrl = buildUrl + "/build.loader.js";
@@ -390,9 +566,6 @@
 
     loadCSVFile().then(() => {
         updateTableHeaders();
-
-        // for testing
-        updateSelection(23);
     });
 
     document.body.appendChild(script);
