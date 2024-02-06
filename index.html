@@ -15,33 +15,78 @@
             margin: 0;
             background-color: white;
         }
-
-        #container {
+        
+        .container {
             display: flex;
-            flex-wrap: wrap;
-            max-width: 95%;
+            height: 100%;
+            width: 100%;
+        }
+
+                /* Left column */
+        .left-col {
+            flex: 0 0 10%; /* 10% width, does not grow or shrink */
+        }
+
+        /* Middle column */
+        .mid-col {
+            flex: 0 0 50%; /* 50% width, does not grow or shrink */
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            margin-top:20px
+        }
+
+        .mid-col-top-row {
+            flex: 0 0 10%; /* 10% height, does not grow or shrink */
+        }
+
+        .mid-col-mid-row {
+            flex: 0 0 80%; /* 80% height, takes remaining space */
+            max-height: 80%;
+        }
+
+        .mid-col-bot-row {
+            flex: 0 0 10%; /* 10% height, does not grow or shrink */
+        }
+
+        /* Right column */
+        .right-col {
+            flex: 0 0 40%; /* 40% width, does not grow or shrink */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .right-col-top-row {
+            flex: 0 0 20%; /* 20% height, does not grow or shrink */
+        }
+
+        .right-col-bot-row {
+            flex: 1; /* 80% height, takes remaining space */
         }
 
         #probeGraphic {
-            width:10%;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            width:100%;
+
+        }
+
+        #unity-container {
+            width:100%;
+            height: 100%;
         }
 
         #unity-canvas {
-            width: 70%;
-            max-width: 1000px; /* Adjust the width as needed */
-            margin-bottom: 20px;
-        }
-
-        #imageContainer {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #pngImage, #gifImage, #probeImage {
             width: 100%;
-            margin-bottom: 20px;
+            height: 100%;
+        }
+
+        #pngImage, #probeImage {
+            width: 100%;
+        }
+
+        #gifImage {
+            height: 100%;
         }
 
         #dataTable {
@@ -59,6 +104,14 @@
             font-weight: 300; /* Make it thin */
         }
 
+        .area-button {
+            margin: 5px;
+            padding: 10px;
+            background-color: white; /* Placeholder color */
+            border: none;
+            cursor: pointer;
+        }
+
         .buttonContainer {
             position: absolute;
             bottom: 0;
@@ -68,7 +121,6 @@
             align-items: flex-end;
             margin: 10px;
         }
-
         .button {
             background-color: lightblue;
             color: white;
@@ -78,43 +130,52 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
-        #searchInput {
-            min-width: 50%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            outline: none;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
-<body>
-    <input type="text" id="searchInput" placeholder="Search by acronym..." onkeydown="searchOnEnter(event)">
-
-    <div id="container">
-        <div id="probeGraphic">
-            <img id="probeImage" src="images/ultra_probe.svg" alt="Ultra Probe">
+<body>    
+    <div class="container">
+        <!-- Left column -->
+        <div class="left-col">
+            <div id="probeGraphic">
+                <img id="probeImage" src="images/ultra_probe.svg" alt="Ultra Probe">
+            </div>
         </div>
 
-        <canvas id="unity-canvas"></canvas>
+        <!-- Middle column -->
+        <div class="mid-col">
+            <div id="areas" class="mid-col-top-row">
+                <!-- Content for middle column top row goes here -->
+            </div>
+            <div class="mid-col-mid-row">
+                <div id="unity-container">
+                    <canvas id="unity-canvas"></canvas>
+                </div>
+            </div>
+            <div class="mid-col-bot-row">
 
-        <div id="imageContainer">
-            <img id="pngImage" src="" alt="PNG Image">
-            <img id="gifImage" src="" alt="GIF Image">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="right-col">
+            <div class="right-col-top-row">
+                <img id="pngImage" src="" alt="PNG Image">
+            </div>
+            <div class="right-col-bot-row">
+                <img id="gifImage" src="" alt="GIF Image">
+            </div>
         </div>
     </div>
-
-    <table id="dataTable">
-        <thead>
-            <tr>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-            </tr>
-        </tbody>
-    </table>
     
     <div class="buttonContainer">
         <a href="https://www.biorxiv.org/content/10.1101/2023.08.23.554527"><button class="button">Paper</button></a>
@@ -122,10 +183,55 @@
     </div>
 
     <script>
+    var state = {
+        selected: -1,
+        visible_areas: [],
+    };
+    var N;
     var myGameInstance;
+
+    // Button labels
+    const buttonLabels = [
+        'MO', 'ORB', 'VIS', 'PIR', 'CTXsp', 'CA1', 'SUB', 'CA3',
+        'DG', 'oc', 'VPM', 'VPL', 'PO', 'CP', 'ACB', 'MB'
+    ];
+
+    function setup() {
+        // Get reference to the top container
+        const topContainer = document.getElementById('areas');
+
+        // Create and append buttons
+        buttonLabels.forEach(label => {
+            const button = document.createElement('button');
+            button.textContent = label;
+            button.className = 'button';
+            button.onclick = function() {
+                search(label);
+            };
+            topContainer.appendChild(button);
+        });
+        
+
+        // Add event listener for keydown event
+        document.addEventListener('keydown', function(event) {
+            // Check if left arrow key was pressed
+            if (event.keyCode === 37) {
+                // Decrement the selected value
+                state.selected--;
+                console.log("Left arrow key pressed. Selected value decremented to: " + state.selected);
+            }
+            // Check if right arrow key was pressed
+            else if (event.keyCode === 39) {
+                // Increment the selected value
+                state.selected++;
+                console.log("Right arrow key pressed. Selected value incremented to: " + state.selected);
+            }
+        });
+    }
     
     function updateSelection(idx) {
-        // Note that the data row is idx-1 but the images are idx (MATLAB people...)
+        // Note that the data row is idx-1 but the images are idx (MATLAB people...
+        state.selected = idx;
 
         if (!csvData) {
             console.error('CSV data not loaded yet.');
@@ -176,6 +282,8 @@
         } catch (error) {
             console.error('Error loading CSV file:', error);
         }
+
+        setup();
     }
 
     function parseCSV(csvText) {
@@ -193,6 +301,8 @@
 
             data.push(entry);
         }
+
+        N = data.length;
 
         return data;
     }
@@ -232,6 +342,7 @@
         companyName: "VirtualBrainLab",
         productName: "NPUltra",
         productVersion: "0.1.0",
+        // matchWebGLToCanvasSize:false,
     };
 
     // const container = document.querySelector("#unity-container");
