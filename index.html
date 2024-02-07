@@ -68,7 +68,7 @@
             margin-top: 20px;
             margin-bottom: 20px;
             width:100%;
-
+            background-color: #ffffff00;
         }
 
         #unity-container {
@@ -82,7 +82,8 @@
         }
 
         #pngImage, #probeImage {
-            width: 100%;
+            height: 100%;
+            max-height: 100vh;
         }
 
         #gifImage {
@@ -110,6 +111,11 @@
             background-color: white; /* Placeholder color */
             border: none;
             cursor: pointer;
+        }
+
+        #areaContainer {
+            max-width: 60%;
+            margin-left: 20%;
         }
 
         .buttonContainer {
@@ -183,8 +189,12 @@
 
         <!-- Middle column -->
         <div class="mid-col">
-            <div id="areas" class="mid-col-top-row">
-                <!-- Content for middle column top row goes here -->
+            <div class="mid-col-top-row">
+                <div id="areaContainer">
+                    <div id="areas">
+
+                    </div>
+                </div>
             </div>
             <div class="mid-col-mid-row">
                 <div id="unity-container">
@@ -236,9 +246,22 @@
         'DG', 'cc', 'VPM', 'VPL', 'PO', 'CP', 'ACB', 'MB'
     ];
 
-    const buttonColors = ['#1f9d5a','#248a5e', '#08858c', '#6acbba', '#8ada87', '#7ed04b', '#4fc244',
-        '#7ed04b', '#7ed04b', '#ff8084', '#ff8084', '#ff909f', '#98d6f9', '#80cdf8', '#ff64ff', '#ff64ff'
-    ]
+    const buttonColors = ['#1f9d5a',
+ '#248a5e',
+ '#08858c',
+ '#6acbba',
+ '#8ada87',
+ '#7ed04b',
+ '#4fc244',
+ '#7ed04b',
+ '#7ed04b',
+ '#cccccc',
+ '#ff8084',
+ '#ff8084',
+ '#ff909f',
+ '#98d6f9',
+ '#80cdf8',
+ '#ff64ff']
 
     let buttons = []
 
