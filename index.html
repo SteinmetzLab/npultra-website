@@ -58,6 +58,7 @@
 
         .right-col-top-row {
             flex: 0 0 20%; /* 20% height, does not grow or shrink */
+            max-width: 20vw;
         }
 
         .right-col-bot-row {
@@ -81,13 +82,20 @@
             height: 100%;
         }
 
-        #pngImage, #probeImage {
+        #probeImage {
             height: 100%;
             max-height: 100vh;
         }
 
+        #pngImage {
+          width: 100%;
+          max-width: 20vw;
+          max-height: 20vh;
+        }
+
         #gifImage {
             height: 100%;
+            max-height: 80vh;
         }
 
         #dataTable {
@@ -522,8 +530,8 @@
         }
 
         // Change the image lement sources
-        document.getElementById('gifImage').src = `images/gif/neuron${idx}.gif`;
-        document.getElementById('pngImage').src = `images/png/neuron${idx}.png`;
+        document.getElementById('gifImage').src = `https://data.virtualbrainlab.org/NPUltra/gif/neuron${idx}.gif`;
+        document.getElementById('pngImage').src = `https://data.virtualbrainlab.org/NPUltra/png/neuron${idx}.png`;
     }
 
     ////////////////////////////////
