@@ -415,6 +415,10 @@ PrefabInstance:
       value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 3393775226113162775, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: rotSpeed
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162775, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
       propertyPath: RotationChangedEvent.m_PersistentCalls.m_Calls.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -682,8 +686,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _meshManager: {fileID: 213271435}
   _mainCameraBehav: {fileID: 1793010831}
-  _dataAsset: {fileID: 4900000, guid: 294b66c1e8e17e040afe13c21f7247cc, type: 3}
-  RandScale: 0.1
+  _data: {fileID: 11400000, guid: 538251f155711c84488be30dbaa45285, type: 2}
 --- !u!114 &1793010831 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3393775226113162772, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
