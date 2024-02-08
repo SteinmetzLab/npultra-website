@@ -1,5 +1,6 @@
 using BrainAtlas;
 using System.Collections.Generic;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -106,20 +107,11 @@ public class NPUltraRuntime : MonoBehaviour
             _rootNode.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
             _searchedNode = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(
                 BrainAtlasManager.ActiveReferenceAtlas.Ontology.Acronym2ID(searchStr));
-            LoadNode(_searchedNode, 0.25f);
+            LoadNode(_searchedNode, 0.15f);
 
             // Resize neurons
-            float[] scales = new float[_data.Names.Length];
-
-            for (int i = 0; i < _data.Names.Length; i++)
-            {
-                if (_data.Names[i].Contains(searchStr))
-                    scales[i] = UNIT_SIZE;
-                else
-                    scales[i] = UNIT_SIZE_DISABLED;
-            }
-
-            _meshManager.SetScale(_data.Names, scales);
+            int[] searched = _data.Areas.Select(x => x.Contains(searchStr) ? 1 : -1).ToArray();
+            _meshManager.SetSearched(_data.Names, searched);
         }
         else
         {
@@ -131,7 +123,7 @@ public class NPUltraRuntime : MonoBehaviour
             _rootNode.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
             _searchedNode.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
 
-            _meshManager.SetScale(_data.Names, UNIT_SIZE);
+            _meshManager.SetSearched(_data.Names, 0);
         }
     }
 

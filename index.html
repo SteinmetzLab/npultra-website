@@ -15,6 +15,11 @@
             margin: 0;
             background-color: white;
         }
+
+        p {
+            font-family: 'Josefin Sans', sans-serif;
+            font-weight: 300; /* Make it bold */
+        }
         
         .container {
             display: flex;
@@ -38,31 +43,71 @@
 
         .mid-col-top-row {
             flex: 0 0 10%; /* 10% height, does not grow or shrink */
+            max-height: 10vh;
+            display:flex;
+            flex-direction: row;
+        }
+
+        .mid-col-top-row-left {
+            flex: 0 0 50%;
+        }
+
+        .mid-col-top-row-right {
+            flex: 0 0 50%;
         }
 
         .mid-col-mid-row {
             flex: 0 0 80%; /* 80% height, takes remaining space */
-            max-height: 80%;
+            max-height: 80vh;
         }
 
         .mid-col-bot-row {
             flex: 0 0 10%; /* 10% height, does not grow or shrink */
+            display: flex; /* Use flexbox to arrange items */
+            align-items: center; /* Align items vertically */
+            justify-content: center; /* Center items horizontally */
+            text-align: center;
+            max-height: 10vh;
         }
 
         /* Right column */
         .right-col {
             flex: 0 0 40%; /* 40% width, does not grow or shrink */
+            max-width: 40vw;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
         }
 
-        .right-col-top-row {
-            flex: 0 0 20%; /* 20% height, does not grow or shrink */
+        .right-col-left {
+            flex: 0 0 50%;
             max-width: 20vw;
         }
 
-        .right-col-bot-row {
-            flex: 1; /* 80% height, takes remaining space */
+        .right-col-right {
+            flex: 1 0 50%;
+            display: flex;
+            flex-direction: column;
+            max-width: 20vw;
+        }
+
+        .right-col-right-top-row {
+            flex: 0 0 80%; /* 80% height, does not grow or shrink */
+            max-width: 20vw;
+        }
+        
+        .right-col-right-bot-row {
+            display: flex;
+            flex: 1 0 ; /* Take remaining space */
+            align-items: flex-end; /* Align items to the bottom */
+            justify-content: center; /* Center items horizontally */
+        }
+
+        .bottom-content {
+            width: 100%;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
         }
 
         #probeGraphic {
@@ -78,8 +123,8 @@
         }
 
         #unity-canvas {
-            width: 100%;
-            height: 100%;
+            width: 95%;
+            height: 95%;
         }
 
         #probeImage {
@@ -88,19 +133,34 @@
         }
 
         #pngImage {
-          width: 100%;
-          max-width: 20vw;
-          max-height: 20vh;
+          max-width: 10vw;
+          max-height: 80vh;
         }
 
         #gifImage {
+            width: auto;
             height: 100%;
-            max-height: 80vh;
+            max-height: 100vh;
+            max-width: 20vw;
+            object-fit: contain; /* Ensure the aspect ratio is preserved */
+        }
+        
+        #logo {
+            width: 60%;
+            max-width: 12vw;
+        }
+        
+        .table-container {
+            max-width: 80%; /* Adjust the max-width as needed */
+            min-width: 30vw; /* Set minimum width */
+            table-layout: fixed; /* Ensure fixed column width */
+            margin-bottom: 20px;
+            margin-right: 10px; /* Add margin to separate the table and the button */
         }
 
         #dataTable {
-            max-width: 80%;
-            margin-bottom: 20px;
+            width: 100%; /* Ensure the table takes full width of its container */
+            table-layout: fixed; /* Ensure fixed column width */
         }
 
         #dataTable th {
@@ -114,27 +174,21 @@
         }
 
         .area-button {
-            margin: 5px;
-            padding: 10px;
+            width: 11%;
+            margin: 3px;
+            padding: 5px;
             background-color: white; /* Placeholder color */
-            border: none;
+            color:white;
+            font-size: smaller;
+            border:none;
+            border-radius: 5px;
             cursor: pointer;
         }
 
         #areaContainer {
-            max-width: 60%;
-            margin-left: 20%;
+            max-width: 100%;
         }
 
-        .buttonContainer {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            margin: 10px;
-        }
         .button {
             background-color: #add8e6;
             color: white;
@@ -198,46 +252,61 @@
         <!-- Middle column -->
         <div class="mid-col">
             <div class="mid-col-top-row">
-                <div id="areaContainer">
-                    <div id="areas">
-
+                <div class="mid-col-top-row-left">
+                    <div id="areaContainer">
+                        <div id="areas"></div>
                     </div>
                 </div>
+                <div class="mid-col-top-row-right">
+                    <button class="button" onclick="updateState();">Small waveform</button>
+                    <button class="button" onclick="updateState();">Large waveform</button>
+                    <button class="button" onclick="updateState();">Short duration</button>
+                    <button class="button" onclick="updateState();">Long duration</button>
+                </div>
             </div>
+
             <div class="mid-col-mid-row">
                 <div id="unity-container">
                     <canvas id="unity-canvas"></canvas>
                 </div>
             </div>
+            
             <div class="mid-col-bot-row">
+                <div class="table-container">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                <table id="dataTable">
-                    <thead>
-                        <tr>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                        </tr>
-                    </tbody>
-                </table>
+                <button class="button" onclick="updateState();">Share URL to this neuron</button>
             </div>
         </div>
 
         <!-- Right column -->
         <div class="right-col">
-            <div class="right-col-top-row">
-                <img id="pngImage" src="" alt="PNG Image">
-            </div>
-            <div class="right-col-bot-row">
+            <div class="right-col-left">
                 <img id="gifImage" src="" alt="GIF Image">
             </div>
+            <div class="right-col-right">
+                <div class="right-col-right-top-row">
+                    <img id="pngImage" src="" alt="PNG Image">
+                </div>
+                <div class="right-col-right-bot-row">
+                    <div class="bottom-content">
+                        <img id="logo" src="./images/lablogo.png">
+                        <p>Code by <a href="https://danbirman.com">Daniel Birman</a> data 
+                        collection and figures by <a href="https://www.yezhiwen.com/">Zhiwen Ye</a>. Read the <a href="https://www.biorxiv.org/content/10.1101/2023.08.23.554527">Paper</a>.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="buttonContainer">
-        <a href="https://www.biorxiv.org/content/10.1101/2023.08.23.554527"><button class="button">Paper</button></a>
-        <button class="button" onclick="updateState();">Share</button>
     </div>
 
     <script>
@@ -274,6 +343,44 @@
     let buttons = []
 
     function setup() {
+
+        setupButtons();
+
+        // Add event listener for keydown event
+        document.addEventListener('keydown', function(event) {
+            // Check if left arrow key was pressed
+            if (event.keyCode === 39) {
+                // Decrement the selected value
+                state.selected++;
+                checkSelectedBounds(true);
+                update();
+            }
+            // Check if right arrow key was pressed
+            else if (event.keyCode === 37) {
+                // Increment the selected value
+                state.selected--;
+                checkSelectedBounds(false);
+                update();
+            }
+        });
+        
+        var urlParams = new URLSearchParams(window.location.search);
+        var stateBase64 = urlParams.get('state');
+
+        if (stateBase64) {
+            console.log('Found state in URL');
+            readState(stateBase64);
+        }
+    }
+
+
+    ////////////////////////////////
+    // BUTTONS //////////
+    ////////////////////////////////
+
+    // window.addEventListener('resize', resizeButtons); // Listen for window resize events
+
+    function setupButtons() {
         // Get reference to the top container
         let topContainer = document.getElementById('areas');
 
@@ -286,7 +393,7 @@
             buttons.push(button);
 
             button.textContent = label;
-            button.className = 'button';
+            button.className = 'area-button';
             button.style.backgroundColor = color;
             if (label == 'Clear') {
                 button.onclick = function() {
@@ -300,33 +407,45 @@
             }
             topContainer.appendChild(button);
         }
-
-        // Add event listener for keydown event
-        document.addEventListener('keydown', function(event) {
-            // Check if left arrow key was pressed
-            if (event.keyCode === 37) {
-                // Decrement the selected value
-                state.selected++;
-                checkSelectedBounds();
-                update();
-            }
-            // Check if right arrow key was pressed
-            else if (event.keyCode === 39) {
-                // Increment the selected value
-                state.selected--;
-                checkSelectedBounds();
-                update();
-            }
-        });
-        
-        var urlParams = new URLSearchParams(window.location.search);
-        var stateBase64 = urlParams.get('state');
-
-        if (stateBase64) {
-            console.log('Found state in URL');
-            readState(stateBase64);
-        }
     }
+
+    // Function to resize buttons
+    function resizeButtons() {
+        // var container = document.getElementById('areaContainer');
+        // var containerWidth = container.offsetWidth;
+        // var containerHeight = container.offsetHeight;
+        
+        // var buttons = container.getElementsByClassName('button');
+        // var totalButtonWidth = 0;
+        // var totalButtonHeight = 0;
+
+        // console.log(containerWidth);
+        // console.log(containerHeight);
+        // console.log(totalButtonWidth);
+        // console.log(totalButtonHeight);
+
+        // // Calculate total width and height of buttons
+        // for (var i = 0; i < buttons.length; i++) {
+        //     totalButtonWidth += buttons[i].offsetWidth;
+        //     totalButtonHeight += buttons[i].offsetHeight;
+        // }
+
+        // // Check if total button width exceeds container width or total button height exceeds container height
+        // if (totalButtonWidth > containerWidth || totalButtonHeight > containerHeight) {
+        //     var scaleFactor = Math.min(containerWidth / totalButtonWidth, containerHeight / totalButtonHeight) * 3;
+
+        //     // Resize each button
+        //     for (var i = 0; i < buttons.length; i++) {
+        //         buttons[i].style.transform = 'scale(' + scaleFactor + ')';
+        //     }
+        // } else {
+        //     // Reset button sizes if they fit within the container
+        //     for (var i = 0; i < buttons.length; i++) {
+        //         buttons[i].style.transform = 'scale(1)';
+        //     }
+        // }
+    }
+
 
     ////////////////////////////////
     // STATE //////////
@@ -350,7 +469,34 @@
     // SELECTION / SEARCH //////////
     ////////////////////////////////
 
-    function checkSelectedBounds() {
+    function checkSelectedBounds(inc = true) {
+        checkSelectedBounds
+        // if (state.search == '') {
+        //     checkSelectedLimits();
+        // }
+        // else {
+        //     // we are going to cycle inside of this area
+        //     if (csvData[state.selected-1].area != state.search) {
+        //         if (inc) {
+        //             // count up from zero, find the first area that matches
+        //             state.selected = 1;
+        //             while (csvData[state.selected-1].area != state.search) {
+        //                 state.selected++;
+        //             }
+        //         }
+        //         else {
+        //             // count down
+        //             state.selected = N;
+        //             while (csvData[state.selected-1].area != state.search) {
+        //                 state.selected--;
+        //             }
+        //         }
+        //         checkSelectedLimits();
+        //     }
+        // }
+    }
+
+    function checkSelectedLimits() {
         if (state.selected <= 0) {
             state.selected += N;
         }
@@ -396,6 +542,10 @@
     let prevSelected = -1;
 
     function update() {
+        if (state.selected == -1) {
+            state.selected = 9
+        }
+
         document.getElementById('loadingOverlay').style.display = 'none';
 
         if (state.search != prevSearch) {
