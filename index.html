@@ -258,10 +258,10 @@
                     </div>
                 </div>
                 <div class="mid-col-top-row-right">
-                    <button class="button" onclick="updateState();">Small waveform</button>
-                    <button class="button" onclick="updateState();">Large waveform</button>
-                    <button class="button" onclick="updateState();">Short duration</button>
-                    <button class="button" onclick="updateState();">Long duration</button>
+                    <button class="button" onclick="footprint(true);">Small footprint</button>
+                    <button class="button" onclick="footprint(false);">Large footprint</button>
+                    <button class="button" onclick="duration(true);">Short duration</button>
+                    <button class="button" onclick="duration(false);">Long duration</button>
                 </div>
             </div>
 
@@ -313,6 +313,8 @@
     var state = {
         selected: -1,
         search: '',
+        footprint: 0,
+        duration: 0,
     };
     var N;
     var myGameInstance;
@@ -461,8 +463,19 @@
 
     function readState(stateBase64) {
         var decodedStateJson = atob(stateBase64); // Decode base64 to JSON
+
+        var defaultState = state;
         state = JSON.parse(decodedStateJson);
+
         console.log("State read from URL:", state);
+
+        // check if there are missing fields in state, copy from default
+        for (var key in defaultState) {
+            if (!(key in state)) {
+                state[key] = defaultState[key];
+            }
+        }
+        console.log("Final state after adding defaults:", state);
     }
 
     ////////////////////////////////
@@ -522,6 +535,19 @@
         console.log(`Search set to ${state.search}`);
 
         update();
+    }
+    
+
+    ////////////////////////////////
+    // FOOTPRINT / DURATION //////////
+    ////////////////////////////////
+
+    function footprint(small) {
+
+    }
+
+    function duration(short) {
+
     }
 
     ////////////////////////////////
