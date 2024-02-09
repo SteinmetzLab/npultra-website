@@ -103,6 +103,9 @@ public class NPUltraRuntime : MonoBehaviour
             foreach (OntologyNode node in _cosmosNodes)
                 node.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
 
+            // Hide the previous searched node
+            _searchedNode.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
+
             // Make the searched area visible
             _rootNode.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
             _searchedNode = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(
