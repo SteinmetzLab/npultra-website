@@ -258,10 +258,14 @@
                     </div>
                 </div>
                 <div class="mid-col-top-row-right">
-                    <button class="button" onclick="footprint(true);">Small footprint</button>
-                    <button class="button" onclick="footprint(false);">Large footprint</button>
-                    <button class="button" onclick="duration(true);">Short duration</button>
-                    <button class="button" onclick="duration(false);">Long duration</button>
+                    <div>
+                        <button class="button" id="smallFootprintButton" onclick="footprint(true);">Small footprint</button>
+                        <button class="button" id="largeFootprintButton" onclick="footprint(false);">Large footprint</button>
+                    </div>
+                    <div>
+                        <button class="button" id="shortDurationButton" onclick="duration(true);">Short duration</button>
+                        <button class="button" id="longDurationButton" onclick="duration(false);">Long duration</button>
+                    </div>
                 </div>
             </div>
 
@@ -311,10 +315,12 @@
 
     <script>
     var state = {
-        selected: -1,
-        search: '',
-        footprint: 0,
-        duration: 0,
+        selected: -1, // 1 to N
+        search: '', // area acronym
+        footprint_small: true, // -1 short, 1 long, 0 both
+        footprint_large: true, // -1 small, 1 big, 0 both
+        duration_short: true,
+        duration_long: true,
     };
     var N;
     var myGameInstance;
@@ -541,13 +547,65 @@
     ////////////////////////////////
     // FOOTPRINT / DURATION //////////
     ////////////////////////////////
+    var default_button_color = '#add8e6'
+    var small_fp_button = document.getElementById('smallFootprintButton');
+    var large_fp_button = document.getElementById('largeFootprintButton');
+    var short_dur_button = document.getElementById('shortDurationButton');
+    var long_dur_button = document.getElementById('longDurationButton');
 
     function footprint(small) {
+        if (small) {
+            state.footprint_small = !state.footprint_small;
+        }
+        else {
+            state.footprint_large = !state.footprint_large;
+        }
 
+        myGameInstance.SendMessage('main', 'Search', JSON.stringify(state));
+        updateFPDurButtons();
     }
 
     function duration(short) {
 
+        if (short) {
+            state.duration_short = !state.duration_short;
+        }
+        else {
+            state.duration_long = !state.duration_long;
+        }
+
+        myGameInstance.SendMessage('main', 'Search', JSON.stringify(state));
+        updateFPDurButtons();
+    }
+
+    function updateFPDurButtons() {
+        if (state.footprint_small) {
+            small_fp_button.style.backgroundColor = default_button_color;
+        }
+        else {
+            small_fp_button.style.backgroundColor = '#808080';
+        }
+        
+        if (state.footprint_large) {
+            large_fp_button.style.backgroundColor = default_button_color;
+        }
+        else {
+            large_fp_button.style.backgroundColor = '#808080';
+        }
+
+        if (state.duration_long) {
+            long_dur_button.style.backgroundColor = default_button_color;
+        }
+        else {
+            long_dur_button.style.backgroundColor = '#808080';
+        }
+
+        if (state.duration_short) {
+            short_dur_button.style.backgroundColor = default_button_color;
+        }
+        else {
+            short_dur_button.style.backgroundColor = '#808080';
+        }
     }
 
     ////////////////////////////////
@@ -575,7 +633,7 @@
         document.getElementById('loadingOverlay').style.display = 'none';
 
         if (state.search != prevSearch) {
-            myGameInstance.SendMessage('main', 'Search', state.search);
+            myGameInstance.SendMessage('main', 'Search', JSON.stringify(state));
             prevSearch = state.search;
 
             if (state.search == '') {

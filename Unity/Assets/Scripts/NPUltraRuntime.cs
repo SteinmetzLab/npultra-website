@@ -38,6 +38,7 @@ public class NPUltraRuntime : MonoBehaviour
 
     private void Start()
     {
+        _cosmosNodes = new List<OntologyNode>();
 
 #if !UNITY_EDITOR && UNITY_WEBGL
         WebGLInput.captureAllKeyboardInput = false;
@@ -93,28 +94,63 @@ public class NPUltraRuntime : MonoBehaviour
         _loaded = true;
     }
 
-    public void Search(string searchStr)
+    public void Search(string state)
     {
         if (!_loaded) return;
 
-        if (searchStr != "")
+        State curState = JsonUtility.FromJson<State>(state);
+
+        bool activeArea = curState.search != "";
+        bool disabledDur = !curState.duration_long || !curState.duration_short;
+        bool disabledWave = !curState.footprint_large || !curState.footprint_small;
+
+        // Set neurons to active/inactive state
+        if (activeArea || disabledDur || disabledWave)
+        {
+            int[] searched = new int[_data.Areas.Length];
+
+            for (int i = 0; i < searched.Length; i++)
+            {
+                // For each unit, check if:
+                // we are searching for areas AND this is in that area, or we aren't searching for areas
+                // we are searching for short AND this is short
+                // we are searching for long AND this is long
+                // etc...
+
+                bool inArea = !activeArea || (activeArea && _data.Areas[i].Contains(curState.search));
+                bool isShort = curState.duration_short && _data.ShortDuration[i];
+                bool isLong = curState.duration_long && !_data.ShortDuration[i];
+                bool isSmall = curState.footprint_small && _data.SmallFootprint[i];
+                bool isLarge = curState.footprint_large && !_data.SmallFootprint[i];
+
+                bool active = inArea && (isShort || isLong) && (isSmall || isLarge);
+
+                searched[i] = active ? 1 : -1;
+            }
+
+            _meshManager.SetSearched(_data.Names, searched);
+        }
+        else
+        {
+            _meshManager.SetSearched(_data.Names, 0);
+        }
+
+        // Handle showing and hiding 3D areas
+        if (activeArea)
         {
             // Hide cosmos areas
             foreach (OntologyNode node in _cosmosNodes)
                 node.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
 
             // Hide the previous searched node
-            _searchedNode.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
+            if (_searchedNode != null)
+                _searchedNode.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
 
             // Make the searched area visible
             _rootNode.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
             _searchedNode = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(
-                BrainAtlasManager.ActiveReferenceAtlas.Ontology.Acronym2ID(searchStr));
+                BrainAtlasManager.ActiveReferenceAtlas.Ontology.Acronym2ID(curState.search));
             LoadNode(_searchedNode, 0.15f);
-
-            // Resize neurons
-            int[] searched = _data.Areas.Select(x => x.Contains(searchStr) ? 1 : -1).ToArray();
-            _meshManager.SetSearched(_data.Names, searched);
         }
         else
         {
@@ -124,9 +160,8 @@ public class NPUltraRuntime : MonoBehaviour
 
             // Make the searched area visible
             _rootNode.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
-            _searchedNode.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
-
-            _meshManager.SetSearched(_data.Names, 0);
+            if (_searchedNode != null)
+                _searchedNode.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
         }
     }
 
@@ -157,6 +192,24 @@ public class NPUltraRuntime : MonoBehaviour
     }
 }
 
+public struct State
+{
+    //var state = {
+    //    selected: -1, // 1 to N
+    //    search: '', // area acronym
+    //    footprint_small: true, // -1 short, 1 long, 0 both
+    //    footprint_large: true, // -1 small, 1 big, 0 both
+    //    duration_short: true,
+    //    duration_long: true,
+    //};
+    public int selected;
+    public string search;
+    public bool footprint_small;
+    public bool footprint_large;
+    public bool duration_short;
+    public bool duration_long;
+}
+
 #if UNITY_EDITOR
 public class DataProcessing
 {
@@ -176,6 +229,8 @@ public class DataProcessing
             List<Color> colors = new();
             List<string> namesList = new();
             List<string> areaList = new();
+            List<bool> durationList = new();
+            List<bool> footprintList = new();
 
             // skip the first row (header) and last row (blank)
             for (int i = 1; i < (rows.Length - 1); i++)
@@ -197,12 +252,17 @@ public class DataProcessing
                 areaList.Add(columns[3]);
                 colors.Add(HexToColor(columns[4]));
                 namesList.Add(i.ToString());
+
+                durationList.Add(bool.Parse(columns[6]));
+                footprintList.Add(bool.Parse(columns[7]));
             }
 
             dataSO.Names = namesList.ToArray();
             dataSO.Coords = coords.ToArray();
             dataSO.Colors = colors.ToArray();
             dataSO.Areas = areaList.ToArray();
+            dataSO.ShortDuration = durationList.ToArray();
+            dataSO.SmallFootprint = footprintList.ToArray();
         }
         else
         {
