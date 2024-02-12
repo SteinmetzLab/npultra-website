@@ -359,16 +359,12 @@
             // Check if left arrow key was pressed
             if (event.keyCode === 39) {
                 // Decrement the selected value
-                state.selected++;
-                checkSelectedBounds(true);
-                update();
+                myGameInstance.SendMessage('main', 'SelectDirection', 1);
             }
             // Check if right arrow key was pressed
             else if (event.keyCode === 37) {
                 // Increment the selected value
-                state.selected--;
-                checkSelectedBounds(false);
-                update();
+                myGameInstance.SendMessage('main', 'SelectDirection', -1);
             }
         });
         
@@ -487,42 +483,6 @@
     ////////////////////////////////
     // SELECTION / SEARCH //////////
     ////////////////////////////////
-
-    function checkSelectedBounds(inc = true) {
-        checkSelectedBounds
-        // if (state.search == '') {
-        //     checkSelectedLimits();
-        // }
-        // else {
-        //     // we are going to cycle inside of this area
-        //     if (csvData[state.selected-1].area != state.search) {
-        //         if (inc) {
-        //             // count up from zero, find the first area that matches
-        //             state.selected = 1;
-        //             while (csvData[state.selected-1].area != state.search) {
-        //                 state.selected++;
-        //             }
-        //         }
-        //         else {
-        //             // count down
-        //             state.selected = N;
-        //             while (csvData[state.selected-1].area != state.search) {
-        //                 state.selected--;
-        //             }
-        //         }
-        //         checkSelectedLimits();
-        //     }
-        // }
-    }
-
-    function checkSelectedLimits() {
-        if (state.selected <= 0) {
-            state.selected += N;
-        }
-        if (state.selected > N) {
-            state.selected -= N;
-        }
-    }
 
     function searchOnEnter(event) {
         if (event.key == 'Enter') {

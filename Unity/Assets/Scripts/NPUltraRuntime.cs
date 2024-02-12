@@ -1,4 +1,5 @@
 using BrainAtlas;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 #if UNITY_EDITOR
@@ -8,6 +9,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Urchin.Behaviors;
 using Urchin.Managers;
+using Random = UnityEngine.Random;
 #if UNITY_WEBGL && !UNITY_EDITOR
 using System.Runtime.InteropServices;
 #endif
@@ -17,6 +19,9 @@ public class NPUltraRuntime : MonoBehaviour
 #if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")]
     private static extern void FinishedLoading();
+    
+    [DllImport("__Internal")]
+    private static extern void UpdateSelection(int idx);
 #endif
 
     private const float UNIT_SIZE = 0.075f;
@@ -94,6 +99,9 @@ public class NPUltraRuntime : MonoBehaviour
         _loaded = true;
     }
 
+    private bool _searchActive;
+    private int[] _searched;
+
     public void Search(string state)
     {
         if (!_loaded) return;
@@ -107,9 +115,9 @@ public class NPUltraRuntime : MonoBehaviour
         // Set neurons to active/inactive state
         if (activeArea || disabledDur || disabledWave)
         {
-            int[] searched = new int[_data.Areas.Length];
+            _searched = new int[_data.Areas.Length];
 
-            for (int i = 0; i < searched.Length; i++)
+            for (int i = 0; i < _searched.Length; i++)
             {
                 // For each unit, check if:
                 // we are searching for areas AND this is in that area, or we aren't searching for areas
@@ -125,14 +133,16 @@ public class NPUltraRuntime : MonoBehaviour
 
                 bool active = inArea && (isShort || isLong) && (isSmall || isLarge);
 
-                searched[i] = active ? 1 : -1;
+                _searched[i] = active ? 1 : -1;
             }
 
-            _meshManager.SetSearched(_data.Names, searched);
+            _meshManager.SetSearched(_data.Names, _searched);
+            _searchActive = true;
         }
         else
         {
             _meshManager.SetSearched(_data.Names, 0);
+            _searchActive = false;
         }
 
         // Handle showing and hiding 3D areas
@@ -185,10 +195,97 @@ public class NPUltraRuntime : MonoBehaviour
             unMesh.Select(false);
         }
 
+        // Select the new neuron
         _selected = selectedName;
 
         MeshBehavior meshBehavior = _meshManager.GetMesh(_selected);
         meshBehavior.Select(true);
+
+        // If the selected neuron is outside the area we are in, re-select
+        CheckSelection();
+    }
+
+    private int SelectedIndex()
+    {
+        return Array.IndexOf(_data.Names, _selected);
+    }
+
+    private int _selDirection;
+    public void SelectDirection(int direction)
+    {
+        _selDirection = direction;
+
+        int selIdx = SelectedIndex(); // -1 to switch to 0 indexing
+        selIdx += direction;
+
+        if (selIdx >= _data.Names.Length)
+            selIdx = 0;
+        if (selIdx < 0)
+            selIdx = _data.Names.Length - 1;
+
+        // tell the javascript page to make this the new selection
+#if UNITY_WEBGL && !UNITY_EDITOR
+        UpdateSelection(int.Parse(_data.Names[selIdx], System.Globalization.NumberStyles.Any));
+#endif
+    }
+
+    public void CheckSelection()
+    {
+        if (_searchActive)
+        {
+            int selIdx = SelectedIndex(); // -1 to switch to 0 indexing
+
+            // Check if this is an inactive unit
+            if (_searched[selIdx] == -1)
+            {
+                // Unit is inactive
+                // We need to re-select the next neuron, loop around until we find it
+                int newIdx = 0;
+                int count = 0;
+
+                if (_selDirection > 0)
+                {
+                    // We incremented, search up, then loop around if needed
+                    newIdx = selIdx;
+                    while (_searched[newIdx] == -1)
+                    {
+                        newIdx++;
+                        if (newIdx >= _searched.Length)
+                            newIdx = 0;
+
+                        count++;
+                        if (count > _searched.Length)
+                        {
+                            Debug.LogWarning("No neurons available");
+                            break;
+                        }
+                    }
+                }
+                else if (_selDirection < 0)
+                {
+                    // We decremented, search down, then loop around if needed
+                    newIdx = selIdx;
+                    while (_searched[newIdx] == -1)
+                    {
+                        newIdx--;
+                        if (newIdx <= 0)
+                            newIdx = _searched.Length - 1;
+
+                        count++;
+                        if (count > _searched.Length)
+                        {
+                            Debug.LogWarning("No neurons available");
+                            break;
+                        }
+                    }
+                }
+
+                // tell the javascript page to make this the new selection
+#if UNITY_WEBGL && !UNITY_EDITOR
+                    UpdateSelection(int.Parse(_data.Names[newIdx], System.Globalization.NumberStyles.Any));
+#endif
+            }
+        }
     }
 }
 
