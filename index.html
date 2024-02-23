@@ -475,7 +475,14 @@
         var defaultState = state;
         state = JSON.parse(decodedStateJson);
 
-        console.log("State read from URL:", state);
+        // console.log("State read from URL:", state);
+
+        // Check for duplicates in the state, replace with the real ID
+        if (dupMapping[state.selected] > 0) {
+            state.selected = dupMapping[state.selected];
+        }
+
+        // console.log("State after removing duplicates:", state);
 
         // check if there are missing fields in state, copy from default
         for (var key in defaultState) {
@@ -483,8 +490,37 @@
                 state[key] = defaultState[key];
             }
         }
-        console.log("Final state after adding defaults:", state);
+        // console.log("Final state after adding defaults:", state);
     }
+
+    const length = 5896;
+    const initialValue = -1;
+    var dupMapping = Array(length).fill(initialValue);
+    var dupLoaded = false;
+
+    // Function to load the CSV file and cache the data
+    async function loadDupFile() {
+        try {
+            const response = await fetch('./duplicate_mapping.csv');
+            const dupText = await response.text();
+            parseDup(dupText);
+        } catch (error) {
+            console.error('Error loading CSV file:', error);
+        }
+    }
+
+    function parseDup(dupText) {
+        const lines = dupText.trim().split('\n');
+        const headers = lines[0].split(',');
+
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',');
+
+            dupMapping[parseInt(values[0])] = parseInt(values[1]);
+        }
+    }
+
+    loadDupFile();
 
     ////////////////////////////////
     // SELECTION / SEARCH //////////

@@ -83,3 +83,6 @@ build/logo.png
 build/TemplateData/favicon.ico
 build/TemplateData/fullscreen-button.png
 build/TemplateData/style.css
+
+images/png/*
+images/gif/*
