@@ -328,6 +328,7 @@
         duration_short: true,
         duration_long: true,
     };
+    var defaultState = state;
     var N;
     var myGameInstance;
 
@@ -480,6 +481,7 @@
     }
 
     function readState(inputStr) {
+
         decodeJSONState(inputStr);
 
         updateStateDefaults();
@@ -533,7 +535,6 @@
     function decodeJSONState(stateBase64) {
         var decodedStateJson = atob(stateBase64); // Decode base64 to JSON
 
-        var defaultState = state;
         state = JSON.parse(decodedStateJson);
     }
 
