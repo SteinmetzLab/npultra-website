@@ -380,11 +380,14 @@
         });
         
         var urlParams = new URLSearchParams(window.location.search);
-        var stateBase64 = urlParams.get('state');
 
-        if (stateBase64) {
+        if (urlParams.get('state')) {
             console.log('Found state in URL');
-            readState(stateBase64);
+            readState(urlParams.get('state'));
+        }
+        else if (urlParams.get('selected')) {
+            console.log('Found query strings in URL');
+            readQuery();
         }
     }
 
@@ -467,27 +470,26 @@
     ////////////////////////////////
 
     function updateState() {
-        var stateJson = JSON.stringify(state);
-        var stateBase64 = btoa(stateJson); // Encode JSON to base64
-        var url = window.location.href.split('?')[0] + '?state=' + encodeURIComponent(stateBase64);
-        window.history.replaceState({}, '', url); // Update URL with encoded state
-        navigator.clipboard.writeText(url);
+        encodeQueryState();
     }
 
-    function readState(stateBase64) {
-        var decodedStateJson = atob(stateBase64); // Decode base64 to JSON
+    function readQuery() {
+        decodeQueryState();
 
-        var defaultState = state;
-        state = JSON.parse(decodedStateJson);
+        updateStateDefaults();
+    }
 
-        // console.log("State read from URL:", state);
+    function readState(inputStr) {
+        decodeJSONState(inputStr);
 
+        updateStateDefaults();
+    }
+
+    function updateStateDefaults() {
         // Check for duplicates in the state, replace with the real ID
         if (dupMapping[state.selected] > 0) {
             state.selected = dupMapping[state.selected];
         }
-
-        // console.log("State after removing duplicates:", state);
 
         // check if there are missing fields in state, copy from default
         for (var key in defaultState) {
@@ -495,7 +497,44 @@
                 state[key] = defaultState[key];
             }
         }
-        // console.log("Final state after adding defaults:", state);
+    }
+
+    // QUERY STRING STATE
+    function encodeQueryState() {
+        var queryStr = Object.keys(state)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(state[key])}`)
+            .join('&');
+
+        var url = window.location.href.split('?')[0] + '?' + queryStr;
+        window.history.replaceState({}, '', url); // Update URL with encoded state
+        navigator.clipboard.writeText(url);
+    }
+
+    function decodeQueryState() {
+        const params = new URLSearchParams(window.location.search);
+        const decodedData = {};
+        for (const [key, value] of params) {
+            decodedData[decodeURIComponent(key)] = decodeURIComponent(value);
+        }
+        
+        state = decodedData;
+    }
+
+    // JSON STATE
+
+    function encodeJSONState() {
+        var stateJson = JSON.stringify(state);
+        var stateBase64 = btoa(stateJson); // Encode JSON to base64
+        var url = window.location.href.split('?')[0] + '?state=' + encodeURIComponent(stateBase64);
+        window.history.replaceState({}, '', url); // Update URL with encoded state
+        navigator.clipboard.writeText(url);
+    }
+
+    function decodeJSONState(stateBase64) {
+        var decodedStateJson = atob(stateBase64); // Decode base64 to JSON
+
+        var defaultState = state;
+        state = JSON.parse(decodedStateJson);
     }
 
     const length = 5896;
